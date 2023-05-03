@@ -27,5 +27,4 @@ size = 1
 velocity = 1
 k = [0.5, 0.5, 0.5]
 agents = [Car(size, velocity, k) for _ in range(12)]
-
 write_problem(file_name, name, limits, Obstacles, agents, Thetas, Goals)

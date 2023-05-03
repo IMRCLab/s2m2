@@ -1,9 +1,7 @@
 import yaml
 from models.agent import *
-from models.auv import *
-from models.car import *
-from models.hovercraft import *
-
+from models.single_integrator import *
+import numpy as np
 
 def write_results(file_name, paths, problem_path = None):
 
@@ -27,7 +25,7 @@ def write_results(file_name, paths, problem_path = None):
 def read_configuration(file_name):
 
     with open(file_name, "r") as file:
-        data = yaml.load(file)
+        data = yaml.load(file, Loader=yaml.Loader)
 
         min_segs = data["min_segs"]
         max_segs = data["max_segs"]
@@ -38,7 +36,7 @@ def read_configuration(file_name):
 def read_problem(file_name):
 
     with open(file_name, "r") as file:
-        data = yaml.load(file)
+        data = yaml.load(file, Loader=yaml.Loader)
         name = data["name"]
         limits = data["limits"]
         Obstacles = [read_polytope(obs) for obs in data["obstacles"]]
@@ -65,12 +63,8 @@ def write_agent(agent):
     agent_dict["k"] = agent.k
     agent_dict["velocity"] = agent.velocity
     agent_dict["size"] = agent.size
-    if isinstance(agent, Car):
-        agent_dict["type"] = "car"
-    elif isinstance(agent, AUV):
-        agent_dict["type"] = "auv"
-    elif isinstance(agent, Hovercraft):
-        agent_dict["type"] = "hovercraf"
+    if isinstance(agent, SingleIntegrator):
+        agent_dict["type"] = "single_integrator"
 
     return agent_dict
 
@@ -79,12 +73,8 @@ def read_agent(agent):
     k = agent["k"]
     velocity = agent["velocity"]
     size = agent["size"]
-    if agent["type"] == "car":
-        return Car(size, velocity, k)
-    elif type == "auv":
-        return AUV(size, velocity, k)
-    elif type == "hovercraft":
-        return Hovercraft(size, velocity, k)
+    if type == "single_integrator":
+        return SingleIntegrator(size, velocity, k)
 
 def write_polytope(poly):
     A, b = poly

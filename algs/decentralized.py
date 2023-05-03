@@ -17,7 +17,7 @@ def decentralized_algo(models, thetas, goals, limits, obstacles,
         plan = root.update_plan(idx, params)
         if plan == None:
             return None
-    q = PriorityQueue()
+    q = PriorityQueue() # depending on what ?
     q.put(root)
     times = 0
     start_time = default_timer()
@@ -143,7 +143,7 @@ class Node:
     def update_node(self, order, params):
         # Check Ordering Status
         status = self.add_order(order)
-        print("Adding Order Status: ", status)
+        print("Adding Order Status: ", status) # ?
         # assert status == "added"
         if status == "inconsistent": return None
         # Plan for All the Affected Agents
@@ -155,10 +155,11 @@ class Node:
         for k in agents:
             print("- Update Plan for Agent", k)
             higher_agents = self.higher_agents(k)
+            print(" -- Higher agents for %s:" % (k))
+            print(higher_agents)
             # check colliding
             replan = False
-            for j in higher_agents:
-                # print(" -- Check Collison for (%s, %s)" % (k, j))
+            for j in higher_agents: # how decided high agents
                 if ("%s-%s" % (k, j) in self.collisions
                         and self.collisions["%s-%s" % (k, j)] == "free"):
                     1
