@@ -21,7 +21,24 @@ def test(env, problem_path, config_path):
     name = '[%s]'%(env)
 
     trajs = ref2traj(refs)
+    # output to yaml file
+    result = {}
+    result["result"]=[]
+    for idx in range(len(refs)):
+        per_robot={}
+        per_robot["states"]=[]
+        segs = trajs[idx]
+        for seg in segs:
+            _, qref, _ = seg
+            for i in range(len(qref)):
+                pos = np.array([qref[i][0], qref[i][1]])
+                per_robot["states"].append(pos.tolist())
+        result["result"].append(per_robot)
+    with open('s2sm.yaml', 'w') as outfile:
+        yaml.dump(result, outfile)   
+   
     # plot_results(agents, limits, Obstacles, Thetas, Goals, trajs, name, refs=refs)
+    # animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
 
     return refs
 
