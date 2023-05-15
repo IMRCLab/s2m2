@@ -36,7 +36,7 @@ def decentralized_algo(models, thetas, goals, limits, obstacles,
         # Solution Found
         if colliding_agents == None:
             print("[*] Solution Found!")
-            return node.plans
+            return node.makespan, node.plans
         # Resolve Collision
         for (j, i) in [colliding_agents, (colliding_agents[1], colliding_agents[0])]:
             # Update Node
