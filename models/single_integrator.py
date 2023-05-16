@@ -9,24 +9,12 @@ class RobotSingleIntegrator2D(Agent):
         self.velocity = velocity
         self.k = k
 
-    def model(self, q, t, u):
-        x, y = q
-        vx, vy = u
-        dxdt = vx 
-        dydt = vy 
-        return [dxdt, dydt]
+    def model(self, q, t, u): 
+        return u
 
     def controller(self, q, qref, uref):
-        x, y = q
-        xref, yref = qref
-        vxref, vyref = uref
-        k1, k2  = self.k
-        # needs to be checked
-        xe = xref - x
-        ye = yref - y
-        vx = vxref + k1 * xe
-        vy = vyref * k2 * ye
-        return [vx, vy]
+        u = uref + self.k.dot(qref-q)
+        return u 
 
     def bloating(self, n):
         return 0

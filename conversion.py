@@ -3,7 +3,8 @@ import argparse
 from yaml.loader import SafeLoader
 import numpy as np
 from pathlib import Path
-# python3 conversion.py path-to-our-environment.yaml
+
+
 def get_polytope(point, epsilon=0.5):
     A_rect = np.array([[-1,0,-point[0]-epsilon],
 				       [1,0,point[0]+epsilon],
@@ -11,8 +12,9 @@ def get_polytope(point, epsilon=0.5):
 				       [0,1,point[1]+epsilon]])
     return A_rect.tolist()
 
-def convert(env_yaml, env_name):
-    with open(env_yaml) as f:
+def convert(env,env_folder):
+    env_name = Path(env).stem
+    with open(env) as f:
         data = yaml.load(f, Loader=SafeLoader)
     environment = data["environment"]
     obstacles = environment['obstacles']
@@ -38,17 +40,18 @@ def convert(env_yaml, env_name):
         new_format["starts"].append(robots[i]["start"])
     for j in range(len(obstacles)):
         new_format["obstacles"].append(get_polytope(obstacles[j]["center"])) # size ?
-    with open(Path().resolve() / 'problems' / env_name / 'problem.yaml', 'w') as outfile:
+    
+    with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
 
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Convert our data format to s2s format')
-    parser.add_argument('environment_yaml', help="environment.yaml file") 
-    args = parser.parse_args()
-    env_name = Path(args.environment_yaml).stem
-    convert(args.environment_yaml, env_name)
+# def main():
+#     parser = argparse.ArgumentParser(description='Convert our data format to s2s format')
+#     parser.add_argument('environment_yaml', help="environment.yaml file") 
+#     args = parser.parse_args()
+#     env_name = Path(args.environment_yaml).stem
+#     convert(args.environment_yaml, env_name)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
