@@ -3,7 +3,7 @@ from models.agent import *
 from models.auv import *
 from models.car import *
 from models.hovercraft import *
-
+from models.single_integrator import *
 
 def write_results(file_name, paths, problem_path = None):
 
@@ -27,7 +27,7 @@ def write_results(file_name, paths, problem_path = None):
 def read_configuration(file_name):
 
     with open(file_name, "r") as file:
-        data = yaml.load(file)
+        data = yaml.load(file, Loader=yaml.Loader)
 
         min_segs = data["min_segs"]
         max_segs = data["max_segs"]
@@ -38,7 +38,7 @@ def read_configuration(file_name):
 def read_problem(file_name):
 
     with open(file_name, "r") as file:
-        data = yaml.load(file)
+        data = yaml.load(file, Loader=yaml.Loader)
         name = data["name"]
         limits = data["limits"]
         Obstacles = [read_polytope(obs) for obs in data["obstacles"]]
@@ -71,6 +71,8 @@ def write_agent(agent):
         agent_dict["type"] = "auv"
     elif isinstance(agent, Hovercraft):
         agent_dict["type"] = "hovercraf"
+    elif isinstance(agent,  RobotSingleIntegrator2D):
+        agent_dict["type"] = "single_integrator"
 
     return agent_dict
 
@@ -85,6 +87,9 @@ def read_agent(agent):
         return AUV(size, velocity, k)
     elif type == "hovercraft":
         return Hovercraft(size, velocity, k)
+    elif type == "single_integrator":
+        return  RobotSingleIntegrator2D(size, velocity, k)
+
 
 def write_polytope(poly):
     A, b = poly
