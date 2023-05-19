@@ -11,7 +11,7 @@ import argparse
 from conversion import convert
 
 def main_s2sm_original(env, result_folder):
-    path = Path("/home/akmarak-laptop/IMRC/git/s2m2/") 
+    path = Path(__file__).parent 
     env_name = Path(env).stem
     problem_path = path / "problems"
     env_file = problem_path / env_name / "problem.yaml"
