@@ -60,5 +60,6 @@ def animate_results(models,  limits, obstacles, Thetas, goals, ma_segs, name):
                                       blit=True, interval = interval)
 
         # fig.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.99, wspace=None, hspace=None)
-        path = os.path.abspath("results/plots/%s.mp4" % (name))
-        ani.save(path, writer='ffmpeg')
+        # path = os.path.abspath("results/plots/%s.mp4" % (name))
+        plt.show()
+        # ani.save(path, writer='ffmpeg')

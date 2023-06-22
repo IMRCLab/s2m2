@@ -24,8 +24,8 @@ def main_s2sm_original(env, result_folder):
     makespan,refs = decentralized_algo(agents, Thetas, Goals, limits, Obstacles, min_segs, max_segs, obs_steps, 0)
     end = default_timer()
     total_time = end - start
-    print("Total Time = ", total_time)
-    print("Makespan = ", makespan)
+    print("Total Time = ", total_time) # ?
+    print("Total Makespan = ", makespan)
     # name = '[%s]'%(env)
 
     trajs = ref2traj(refs)

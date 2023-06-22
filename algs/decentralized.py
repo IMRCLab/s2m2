@@ -26,7 +26,7 @@ def decentralized_algo(models, thetas, goals, limits, obstacles,
             print("Timeout!")
             return None
         times = times + 1
-        node = q.get()
+        node = q.get() # based on makespan
         print("\n-----", times, "-----")
         print("Orders:", node.G.edges)
         print("Makespan =", node.makespan)
@@ -56,7 +56,7 @@ class Node:
         # params [num]
         self.num = num
         # plans [plans, makespan]
-        if plans == []: plans = [None for i in range(num)]
+        if plans == []: plans = [None for i in range(num)] # for each robot separately
         self.plans = plans
         self.makespan = makespan
         # orders [G]
@@ -215,9 +215,10 @@ class Node:
             # Update Plan and Makespan
             plan = new_plan[0]
             self.plans[k] = plan
-            self.makespan = max(plan[-1][0], self.makespan)
+            # self.makespan = max(plan[-1][0], self.makespan)
+            print([plan[-1][0] for plan in self.plans if plan != None])
             self.makespan = sum([plan[-1][0] for plan in self.plans if plan != None])
-
+            print(self.makespan)
             print("- Feasible Plan Found with Makespan", plan[-1][0])
             for j in self.higher_agents(k):
                 self.collisions["%s-%s" % (k, j)] = "free"
