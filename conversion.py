@@ -31,13 +31,13 @@ def convert(env,env_folder):
 
     for i in range(len(robots)):
         per_robot = {}
-        per_robot["k"] = [0.5, 0.5] # 2D for single integrator
+        per_robot["k"] = [0.5]*len(robots[i]["start"]) # 2D for single integrator
         per_robot["size"] = 0.1 # needs to match OMPL + VIS!
         per_robot["type"] = robots[i]["type"]
         per_robot["velocity"] = 0.5 # needs to match OMPL + VIS!
         new_format["agents"].append(per_robot)
         new_format["goals"].append(get_polytope(robots[i]["goal"], [0.1, 0.1])) # TODO: read the goal radius from algorithms.yaml
-        new_format["starts"].append(robots[i]["start"])
+        new_format["starts"].append(robots[i]["start"][:2]) # position just, no orientation
     for j in range(len(obstacles)):
         new_format["obstacles"].append(get_polytope(obstacles[j]["center"], np.array(obstacles[j]["size"]) / 2))
     

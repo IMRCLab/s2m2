@@ -39,7 +39,8 @@ def main_s2sm_original(env, result_folder):
         for seg in segs:
             _, qref, _ = seg
             for i in range(len(qref)):
-                pos = np.array([qref[i][0], qref[i][1]])
+                # pos = np.array([qref[i][0], qref[i][1]])
+                pos = np.array(qref[i])
                 per_robot["states"].append(pos.tolist())
         result["result"].append(per_robot)
 
