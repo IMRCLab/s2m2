@@ -13,7 +13,7 @@ def get_polytope(point, epsilon):
     return A_rect.tolist()
 
 def convert(env,env_folder,cfg):
-    data_cfg = yaml.load(cfg)
+    data_cfg = yaml.load(cfg, Loader=SafeLoader)
     epsilon = data_cfg["goal_epsilon"]
     env_name = Path(env).stem
     with open(env) as f:
@@ -35,8 +35,19 @@ def convert(env,env_folder,cfg):
     for i in range(len(robots)):
         per_robot = {}
         per_robot["k"] = [0.5]*len(robots[i]["start"]) # 2D for single integrator
-        per_robot["size"] = 0.1 # needs to match OMPL + VIS!
+        
         per_robot["type"] = robots[i]["type"]
+        if per_robot["type"] == "unicycle_first_order_0":
+            per_robot["size"] = 0.5 
+        elif per_robot["type"] == "car_first_order_0":
+            per_robot["size"] = 0.5 
+        elif per_robot["type"] == "single_integrator_0":
+            per_robot["size"] = 0.1
+        else:
+            print("Unknown robot type, manual termination!")
+            raise SystemExit()
+
+
         per_robot["velocity"] = 0.5 # needs to match OMPL + VIS!
         new_format["agents"].append(per_robot)
         new_format["goals"].append(get_polytope(robots[i]["goal"], [epsilon, epsilon])) 

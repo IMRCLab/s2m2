@@ -10,18 +10,29 @@ from pathlib import Path
 import argparse
 from conversion import convert
 
-def main_s2sm_original(env, result_folder, cfg):
+def get_config_file(file, min_seg, max_seg, obs_seg):
+    with open(file, 'w') as f:
+        f.write('{')
+        f.write('min_segs: %i, max_segs: %i, obstacle_segs: %i' % (min_seg, max_seg, obs_seg))
+        f.write('}')
+
+
+def main_s2sm_original(env, result_folder, timelimit, cfg):
     path = Path(__file__).parent 
     env_name = Path(env).stem
     problem_path = path / "problems"
-    env_file = problem_path / env_name / "problem.yaml"
-    config_file = problem_path / env_name / "config.yaml" 
+    env_path = problem_path / env_name
+    env_path.mkdir(parents=True, exist_ok=True)
+    env_file =  env_path / "problem.yaml"
+    config_file = env_path / "config.yaml" 
+    if config_file.is_file() == False:
+        get_config_file(config_file, 2, 10, 10) # min_segs, max_segs, obs_segs
     # convert to s2sm format
     convert(env,problem_path, cfg) # change due to refactor
     name, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
     min_segs, max_segs, obs_steps = read_configuration(config_file)
     start = default_timer()
-    makespan,refs = decentralized_algo(agents, Thetas, Goals, limits, Obstacles, min_segs, max_segs, obs_steps, 0)
+    makespan,refs = decentralized_algo(agents, Thetas, Goals, limits, Obstacles, min_segs, max_segs, obs_steps, 0, int(timelimit))
     end = default_timer()
     total_time = end - start
     print("Total Time = ", total_time) 
@@ -61,12 +72,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("env", help="file containing the environment (YAML)")
     parser.add_argument("result_folder", help="folder to save results")
+    parser.add_argument("timelimit", help="timelimit to solve the problem")
     parser.add_argument("cfg_file", help="file containing configurations (YAML)")
 
     args = parser.parse_args()
 
     for i in range(1):
-         main_s2sm_original(args.env, args.result_folder, args.cfg_file)
+         main_s2sm_original(args.env, args.result_folder, args.timelimit, args.cfg_file)
 
 
 if __name__ == '__main__':

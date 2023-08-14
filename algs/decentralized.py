@@ -7,7 +7,7 @@ from timeit import *
 
 # Main controller algorithm
 def decentralized_algo(models, thetas, goals, limits, obstacles,
-                       min_segs, max_segs, obs_steps, min_dur, timeout = 300):
+                       min_segs, max_segs, obs_steps, min_dur, timeout):
     agent_num = len(models)
     params = [models, thetas, goals, limits, obstacles, min_segs, max_segs, obs_steps, min_dur]
 
