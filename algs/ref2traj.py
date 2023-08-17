@@ -92,14 +92,14 @@ def ref2traj(ma_nodes):
 			t1, t2 = s1[0], s2[0]
 			p1, p2 = s1[1:], s2[1:]
 			times = np.arange(t1, t2, step_size)
-			if times != []:
+			if len(times) > 0:
 				qref = get_xref(p1, p2, times)
 				uref = get_uref(p1, p2, times)
 				ref_traj.append([times, qref, uref])
 		# keep still
 		times = np.arange(ma_nodes[idx][-1][0], max_t, step_size)
 		p = ma_nodes[idx][-1][1:]
-		if times != []:
+		if len(times) > 0:
 			qref = get_xref(p, p, times)
 			uref = get_uref(p, p, times)
 			ref_traj.append([times, qref, uref])

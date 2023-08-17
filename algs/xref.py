@@ -2,7 +2,10 @@ from __future__ import division
 
 from math import *
 import polytope as pc
-from gurobi import *
+try:
+    from gurobi import *
+except ModuleNotFoundError:
+    from gurobipy import *
 from numpy import linalg
 from models.agent import *
 from timeit import *
