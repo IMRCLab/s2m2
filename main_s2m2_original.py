@@ -8,7 +8,7 @@ from viz.animate import *
 from viz.util import *
 from pathlib import Path
 import argparse
-from conversion import convert
+from conversion import *
 
 def get_config_file(file, min_seg, max_seg, obs_seg):
     with open(file, 'w') as f:
@@ -39,24 +39,22 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     print("Total Makespan = ", makespan)
 
     trajs = ref2traj(refs)
-    # output to yaml file
+    animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
+    true_trajs = extract_results(env,agents,Thetas,trajs)
     result, stats = {}, {}
     result["result"]=[]
     for idx in range(len(refs)):
         per_robot={}
         per_robot["states"]=[]
-        segs = trajs[idx]
+        segs = true_trajs[idx]
         for seg in segs:
-            _, qref, _ = seg
-            for i in range(len(qref)):
-                # pos = np.array([qref[i][0], qref[i][1]])
-                pos = np.array(qref[i])
-                per_robot["states"].append(pos.tolist())
+            true_q = np.array(seg)
+            per_robot["states"].append(true_q.tolist())
         result["result"].append(per_robot)
 
     with open(Path(result_folder) / 'result_s2sm.yaml', 'w') as outfile:
         yaml.dump(result, outfile)   
-    
+        
     stats["stats"]=[]
     stats["stats"]
     solution = {}
@@ -66,6 +64,7 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
 
     with open(Path(result_folder) / 'stats.yaml', 'w') as outfile:
         yaml.dump(stats, outfile) 
+
     
     return refs
 def main():

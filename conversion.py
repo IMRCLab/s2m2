@@ -58,14 +58,30 @@ def convert(env,env_folder,cfg):
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
 
+def extract_results(env_file, models, ma_starts, ma_segs):
+    # get robot types
+    agent_types=[]
+    with open(env_file, "r") as file:
+        data = yaml.load(file, Loader=yaml.Loader)
+        robots = data['robots'] 
+    for i in range(len(robots)):
+        agent_types.append(robots[i]["type"])   
 
-
-# def main():
-#     parser = argparse.ArgumentParser(description='Convert our data format to s2s format')
-#     parser.add_argument('environment_yaml', help="environment.yaml file") 
-#     args = parser.parse_args()
-#     env_name = Path(args.environment_yaml).stem
-#     convert(args.environment_yaml, env_name)
-
-# if __name__ == "__main__":
-#     main()
+    agent_num = len(models)
+    paths = []
+    for idx in range(agent_num):
+        path = []
+        segs = ma_segs[idx]
+        start_state = ma_starts[idx]
+        if(agent_types[idx] == "unicycle_first_order_0"):
+            q0 = start_state + [0] # adding theta manually
+            for seg in segs:
+                t, qref, uref = seg
+                # run the controller
+                run = models[idx].run_model
+                q = run(q0, t, qref, uref)
+                q0 = q[-1]
+                for i in range(len(q)-1):
+                    path.append(q[i])
+        paths.append(path)
+    return paths
