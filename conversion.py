@@ -12,13 +12,10 @@ def get_polytope(point, epsilon):
 				       [0,1,point[1]+epsilon[1]]])
     return A_rect.tolist()
 
-def convert(env,env_folder,cfg):
-    data_cfg = yaml.load(cfg, Loader=SafeLoader)
-    epsilon = data_cfg["goal_epsilon"]
+def format_to_s2m2(env,env_folder,epsilon):
     env_name = Path(env).stem
     with open(env) as f:
         data = yaml.load(f, Loader=SafeLoader)
-    
     environment = data["environment"]
     obstacles = environment['obstacles']
     limits_max = environment["max"]
@@ -46,7 +43,6 @@ def convert(env,env_folder,cfg):
         else:
             print("Unknown robot type, manual termination!")
             raise SystemExit()
-
 
         per_robot["velocity"] = 0.5 # needs to match OMPL + VIS!
         new_format["agents"].append(per_robot)

@@ -25,11 +25,13 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     env_path.mkdir(parents=True, exist_ok=True)
     env_file =  env_path / "problem.yaml"
     config_file = env_path / "config.yaml" 
+    # read configurations
+    data_cfg = yaml.load(cfg, Loader=SafeLoader)
     if config_file.is_file() == False:
-        get_config_file(config_file, 2, 10, 10) # min_segs, max_segs, obs_segs
+        get_config_file(config_file, data_cfg["min_seg"], data_cfg["max_seg"], data_cfg["obs_seg"]) # min_segs, max_segs, obs_segs
     # convert to s2sm format
-    convert(env,problem_path, cfg) # change due to refactor
-    name, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
+    format_to_s2m2(env,problem_path, data_cfg["goal_epsilon"]) 
+    _, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
     min_segs, max_segs, obs_steps = read_configuration(config_file)
     start = default_timer()
     makespan,refs = decentralized_algo(agents, Thetas, Goals, limits, Obstacles, min_segs, max_segs, obs_steps, 0, int(timelimit))
