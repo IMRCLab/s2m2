@@ -3,7 +3,7 @@ import argparse
 from yaml.loader import SafeLoader
 import numpy as np
 from pathlib import Path
-import json
+from math import *
 
 def get_polytope(point, epsilon):
     A_rect = np.array([[-1,0,-(point[0]-epsilon[0])],
@@ -58,7 +58,7 @@ def convert(env,env_folder,cfg):
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
 
-def extract_results(env_file, models, ma_starts, ma_segs):
+def extract_output(env_file, models, ma_starts, ma_segs):
     # get robot types
     agent_types=[]
     with open(env_file, "r") as file:
@@ -76,7 +76,7 @@ def extract_results(env_file, models, ma_starts, ma_segs):
         if(agent_types[idx] == "unicycle_first_order_0"):
             q0 = start_state + [0] # adding theta manually
             for seg in segs:
-                t, qref, uref = seg
+                t, qref, uref = seg 
                 # run the controller
                 run = models[idx].run_model
                 q = run(q0, t, qref, uref)
@@ -85,3 +85,49 @@ def extract_results(env_file, models, ma_starts, ma_segs):
                     path.append(q[i])
         paths.append(path)
     return paths
+
+def extract_results(env_file, models, ma_starts, ma_segs):
+    # get robot types
+    agent_types=[]
+    with open(env_file, "r") as file:
+        data = yaml.load(file, Loader=yaml.Loader)
+        robots = data['robots'] 
+    for i in range(len(robots)):
+        agent_types.append(robots[i]["type"])   
+
+    agent_num = len(models)
+    paths, actions = [], []
+    for idx in range(agent_num):
+        segs = ma_segs[idx]
+        start_state = ma_starts[idx]
+        q0 = start_state + [0] # read from .yaml
+        q = [q0] 
+        u = [] 
+        if(agent_types[idx] == "unicycle_first_order_0"):
+            for seg in segs:
+                u0 = [0, 0]
+                t, qref, uref = seg 
+                for i in range(0, len(t)):
+                    t_step = [t[i-1], t[i]]
+                    qref_i, uref_i = qref[i], uref[i]
+                    run = models[idx].run_model_on_result
+                    q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
+                    if i >= 1: # avoid dup;icate of the start state
+                        q.append(q0) # sequence of states
+                        u.append(u0)
+                    i += 1
+
+        paths.append(q)
+        actions.append(u)
+        
+            # print(sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2))
+            # t_n = t[-1]
+            # if ((sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2)) > 0.1):
+            #     for j in range(500):
+            #         t_step = [t_n, t_n + 0.01]
+            #         qref_i, uref_i = qref[-1], uref[-1]
+            #         q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
+            #         print(q0)
+            #         t_n += 0.01
+            #         print(sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2))
+    return paths, actions

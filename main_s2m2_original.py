@@ -39,17 +39,22 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     print("Total Makespan = ", makespan)
 
     trajs = ref2traj(refs)
-    animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
-    true_trajs = extract_results(env,agents,Thetas,trajs)
+    # animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
+    true_trajs, true_actions = extract_results(env,agents,Thetas,trajs)
     result, stats = {}, {}
     result["result"]=[]
     for idx in range(len(refs)):
         per_robot={}
         per_robot["states"]=[]
-        segs = true_trajs[idx]
-        for seg in segs:
-            true_q = np.array(seg)
+        per_robot["actions"]=[]
+        states = true_trajs[idx]
+        actions = true_actions[idx]
+        for state in states:
+            true_q = np.array(state)
             per_robot["states"].append(true_q.tolist())
+        for action in actions:
+            true_u = np.array(action)
+            per_robot["actions"].append(true_u.tolist())
         result["result"].append(per_robot)
 
     with open(Path(result_folder) / 'result_s2sm.yaml', 'w') as outfile:
