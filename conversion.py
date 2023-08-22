@@ -117,14 +117,4 @@ def extract_results(env_file, models, ma_starts, ma_segs):
         paths.append(q)
         actions.append(u)
         
-            # print(sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2))
-            # t_n = t[-1]
-            # if ((sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2)) > 0.1):
-            #     for j in range(500):
-            #         t_step = [t_n, t_n + 0.01]
-            #         qref_i, uref_i = qref[-1], uref[-1]
-            #         q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
-            #         print(q0)
-            #         t_n += 0.01
-            #         print(sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2))
     return paths, actions
