@@ -50,11 +50,3 @@ class RobotUnicycleFirstOrder(Agent):
 			q.append(q0)
 			u0 = self.controller(q0, qref[i], uref[i])
 		return q
-	
-	def run_model_on_result(self, q0, u0, t_i, qref_i, uref_i):
-		q = odeint(self.model, q0, t_i, args = (u0,)) 
-		q0 = q[1]
-		u0 = self.controller(q0, qref_i, uref_i)
-		return q0, u0
-	
-	

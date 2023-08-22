@@ -35,7 +35,8 @@ def format_to_s2m2(env,env_folder,epsilon):
         
         per_robot["type"] = robots[i]["type"]
         if per_robot["type"] == "unicycle_first_order_0":
-            per_robot["size"] = 0.5 
+            per_robot["size"] = 0.5
+            per_robot["k"] = [2.0, 2.0, 1.0]
         elif per_robot["type"] == "car_first_order_0":
             per_robot["size"] = 0.5 
         elif per_robot["type"] == "single_integrator_0":
@@ -97,25 +98,33 @@ def extract_results(env_file, models, ma_starts, ma_segs):
     for idx in range(agent_num):
         segs = ma_segs[idx]
         start_state = ma_starts[idx]
-        q0 = start_state + [0] # read from .yaml
-        q = [q0] 
-        u = [] 
+        if idx == 1:
+            q0 = start_state + [3.14] # read from .yaml
+        else:
+            q0 = start_state + [0] # read from .yaml
+        qs = [q0] 
+        us = [] 
+        q = q0
         if(agent_types[idx] == "unicycle_first_order_0"):
             for seg in segs:
-                u0 = [0, 0]
                 t, qref, uref = seg 
                 for i in range(0, len(t)):
-                    t_step = [t[i-1], t[i]]
+                    # t_step = [0.0, 0.1] #[t[i-1], t[i]]
                     qref_i, uref_i = qref[i], uref[i]
-                    run = models[idx].run_model_on_result
-                    q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
-                    if i >= 1: # avoid dup;icate of the start state
-                        q.append(q0) # sequence of states
-                        u.append(u0)
-                    i += 1
+                    # run = models[idx].run_model_on_result
+                    # q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
 
-        paths.append(q)
-        actions.append(u)
+                    u = models[idx].controller(q, qref_i, uref_i)
+                    # action saturation
+                    u = np.clip(u, [-0.5, -0.5], [0.5, 0.5])
+                    # propagate using simple Euler integration
+                    q = np.asarray(q) + np.asarray(models[idx].model(q, 0, u)) * 0.1
+                    # store result
+                    qs.append(q) # sequence of states
+                    us.append(u)
+
+        paths.append(qs)
+        actions.append(us)
         
             # print(sqrt((q0[0]-qref[-1][0])**2 + (q0[1]-qref[-1][1])**2))
             # t_n = t[-1]
