@@ -26,12 +26,18 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     env_file =  env_path / "problem.yaml"
     config_file = env_path / "config.yaml" 
     # read configurations
-    data_cfg = yaml.load(cfg, Loader=SafeLoader)
+    with open(cfg) as f:
+        data_cfg = yaml.load(f, Loader=SafeLoader)
+    min_seg = data_cfg["s2m2"]["default"]["min_seg"]
+    max_seg = data_cfg["s2m2"]["default"]["max_seg"]
+    obs_seg = data_cfg["s2m2"]["default"]["obs_seg"]
+    goal_epsilon = data_cfg["s2m2"]["default"]["goal_epsilon"]
+
     if config_file.is_file() == False:
-        get_config_file(config_file, data_cfg["min_seg"], data_cfg["max_seg"], data_cfg["obs_seg"]) # min_segs, max_segs, obs_segs
+        get_config_file(config_file, min_seg, max_seg, obs_seg) # min_segs, max_segs, obs_segs
     # convert to s2sm format
-    format_to_s2m2(env,problem_path, data_cfg["goal_epsilon"]) 
-    _, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
+    format_to_s2m2(env,problem_path, goal_epsilon) 
+    name, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
     min_segs, max_segs, obs_steps = read_configuration(config_file)
     start = default_timer()
     makespan,refs = decentralized_algo(agents, Thetas, Goals, limits, Obstacles, min_segs, max_segs, obs_steps, 0, int(timelimit))
@@ -41,7 +47,8 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     print("Total Makespan = ", makespan)
 
     trajs = ref2traj(refs)
-    # animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
+    animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
+
     true_trajs, true_actions = extract_results(env,agents,Thetas,trajs)
     result, stats = {}, {}
     result["result"]=[]

@@ -54,33 +54,34 @@ def format_to_s2m2(env,env_folder,epsilon):
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
 
-def extract_output(env_file, models, ma_starts, ma_segs):
+def extract_output(models, ma_starts, ma_segs):
     # get robot types
-    agent_types=[]
-    with open(env_file, "r") as file:
-        data = yaml.load(file, Loader=yaml.Loader)
-        robots = data['robots'] 
-    for i in range(len(robots)):
-        agent_types.append(robots[i]["type"])   
-
     agent_num = len(models)
-    paths = []
+    paths, actions = [], []
     for idx in range(agent_num):
-        path = []
         segs = ma_segs[idx]
         start_state = ma_starts[idx]
-        if(agent_types[idx] == "unicycle_first_order_0"):
-            q0 = start_state + [0] # adding theta manually
-            for seg in segs:
-                t, qref, uref = seg 
-                # run the controller
-                run = models[idx].run_model
-                q = run(q0, t, qref, uref)
-                q0 = q[-1]
-                for i in range(len(q)-1):
-                    path.append(q[i])
-        paths.append(path)
-    return paths
+        q0 = start_state + [0] # read from .yaml
+        q = [q0] 
+        u = [] 
+        for seg in segs:
+            u0 = [0, 0]
+            t, qref, uref = seg 
+            for i in range(0, len(t)):
+                t_step = [t[i-1], t[i]]
+                qref_i, uref_i = qref[i], uref[i]
+                run = models[idx].run_model_on_result
+                q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
+                if i >= 1: # avoid dup;icate of the start state
+                    q.append(q0) # sequence of states
+                    u.append(u0)
+                i += 1
+        
+        paths.append(q)
+        actions.append(u)   
+    # compare last point and final
+    print(sqrt((q[-1][0]-qref[-1][0])**2 + (q[-1][1]-qref[-1][1])**2))    
+    return paths, actions
 
 def extract_results(env_file, models, ma_starts, ma_segs):
     # get robot types
