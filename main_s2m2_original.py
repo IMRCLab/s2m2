@@ -26,12 +26,11 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     env_file =  env_path / "problem.yaml"
     config_file = env_path / "config.yaml" 
     # read configurations
-    with open(cfg) as f:
-        data_cfg = yaml.load(f, Loader=SafeLoader)
-    min_seg = data_cfg["s2m2"]["default"]["min_seg"]
-    max_seg = data_cfg["s2m2"]["default"]["max_seg"]
-    obs_seg = data_cfg["s2m2"]["default"]["obs_seg"]
-    goal_epsilon = data_cfg["s2m2"]["default"]["goal_epsilon"]
+    data_cfg = yaml.load(cfg, Loader=SafeLoader)
+    min_seg = data_cfg["min_seg"]
+    max_seg = data_cfg["max_seg"]
+    obs_seg = data_cfg["obs_seg"]
+    goal_epsilon = data_cfg["goal_epsilon"]
 
     if config_file.is_file() == False:
         get_config_file(config_file, min_seg, max_seg, obs_seg) # min_segs, max_segs, obs_segs
@@ -47,7 +46,7 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     print("Total Makespan = ", makespan)
 
     trajs = ref2traj(refs)
-    animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
+    # animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
 
     true_trajs, true_actions = extract_results(env,agents,Thetas,trajs)
     result, stats = {}, {}
