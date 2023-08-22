@@ -87,21 +87,20 @@ def extract_output(models, ma_starts, ma_segs):
 def extract_results(env_file, models, ma_starts, ma_segs):
     # get robot types
     agent_types=[]
+    agent_start_angles=[]
     with open(env_file, "r") as file:
         data = yaml.load(file, Loader=yaml.Loader)
         robots = data['robots'] 
     for i in range(len(robots)):
-        agent_types.append(robots[i]["type"])   
+        agent_types.append(robots[i]["type"])  
+        agent_start_angles.append(robots[i]["start"][-1])  # unicycle
 
     agent_num = len(models)
     paths, actions = [], []
     for idx in range(agent_num):
         segs = ma_segs[idx]
         start_state = ma_starts[idx]
-        if idx == 1:
-            q0 = start_state + [3.14] # read from .yaml
-        else:
-            q0 = start_state + [0] # read from .yaml
+        q0 = start_state + [agent_start_angles[idx]] 
         qs = [q0] 
         us = [] 
         q = q0
