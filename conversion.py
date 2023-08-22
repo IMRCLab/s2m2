@@ -35,7 +35,7 @@ def format_to_s2m2(env,env_folder,epsilon):
         
         per_robot["type"] = robots[i]["type"]
         if per_robot["type"] == "unicycle_first_order_0":
-            per_robot["size"] = 0.5
+            per_robot["size"] = sqrt(0.5**2 + 0.25**2) # from robots.cpp
             per_robot["k"] = [2.0, 2.0, 1.0]
         elif per_robot["type"] == "car_first_order_0":
             per_robot["size"] = 0.5 
