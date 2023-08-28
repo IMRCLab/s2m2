@@ -41,6 +41,7 @@ def format_to_s2m2(env,env_folder,cfg_file):
         per_robot["k"] = [0.5]*len(robots[i]["start"]) # 2D for single integrator
         
         per_robot["type"] = robots[i]["type"]
+        per_robot["velocity"] = 0.5 
         if per_robot["type"] == "unicycle_first_order_0_sphere":
             per_robot["size"] = radius
             per_robot["k"] = data_cfg["k"] #[2.0, 2.0, 4.0]
@@ -53,7 +54,6 @@ def format_to_s2m2(env,env_folder,cfg_file):
             print("Unknown robot type, manual termination!")
             raise SystemExit()
 
-        per_robot["velocity"] = 0.5 # needs to match OMPL + VIS!
         new_format["agents"].append(per_robot)
         new_format["goals"].append(get_polytope(robots[i]["goal"], [epsilon, epsilon])) 
         new_format["starts"].append(robots[i]["start"][:2]) # position just, no orientation
