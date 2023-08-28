@@ -13,6 +13,7 @@ def get_polytope(point, epsilon):
     return A_rect.tolist()
 
 def format_to_s2m2(env,env_folder,epsilon):
+    radius = 0.4
     env_name = Path(env).stem
     with open(env) as f:
         data = yaml.load(f, Loader=SafeLoader)
@@ -26,17 +27,21 @@ def format_to_s2m2(env,env_folder,epsilon):
     new_format["limits"], new_format["obstacles"] = [], []
 
     new_format["name"] = env_name
-    new_format["limits"].append([limits_min[0],limits_max[0]])
-    new_format["limits"].append([limits_min[1],limits_max[1]])
+    x_max = limits_max[0]
+    y_max = limits_max[1]
+    x_min = limits_min[0]
+    y_min = limits_min[1]
+    new_format["limits"].append([x_min,x_max])
+    new_format["limits"].append([y_min,y_max])
 
     for i in range(len(robots)):
         per_robot = {}
         per_robot["k"] = [0.5]*len(robots[i]["start"]) # 2D for single integrator
         
         per_robot["type"] = robots[i]["type"]
-        if per_robot["type"] == "unicycle_first_order_0":
-            per_robot["size"] = sqrt(0.5**2 + 0.25**2) # from robots.cpp
-            per_robot["k"] = [2.0, 2.0, 1.0]
+        if per_robot["type"] == "unicycle_first_order_0_sphere":
+            per_robot["size"] = radius
+            per_robot["k"] = [2.0, 2.0, 4.0]
         elif per_robot["type"] == "car_first_order_0":
             per_robot["size"] = 0.5 
         elif per_robot["type"] == "single_integrator_0":
@@ -51,6 +56,11 @@ def format_to_s2m2(env,env_folder,epsilon):
         new_format["starts"].append(robots[i]["start"][:2]) # position just, no orientation
     for j in range(len(obstacles)):
         new_format["obstacles"].append(get_polytope(obstacles[j]["center"], np.array(obstacles[j]["size"]) / 2))
+    # add four obstacle to have the workspace limit
+    new_format["obstacles"].append(get_polytope([x_min-radius,(y_max-y_min)/2], [0.2,y_max-y_min]))
+    new_format["obstacles"].append(get_polytope([x_max+radius,(y_max-y_min)/2], [0.2,y_max-y_min]))
+    new_format["obstacles"].append(get_polytope([(x_max-x_min)/2,y_min-radius], [x_max-x_min,0.2]))
+    new_format["obstacles"].append(get_polytope([(x_max-x_min)/2,y_max+radius], [x_max-x_min,0.2]))
     
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
@@ -104,7 +114,7 @@ def extract_results(env_file, models, ma_starts, ma_segs):
         qs = [q0] 
         us = [] 
         q = q0
-        if(agent_types[idx] == "unicycle_first_order_0"):
+        if(agent_types[idx] == "unicycle_first_order_0_sphere"):
             for seg in segs:
                 t, qref, uref = seg 
                 for i in range(0, len(t)):
