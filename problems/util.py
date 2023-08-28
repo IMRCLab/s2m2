@@ -5,6 +5,7 @@ from models.car import *
 from models.hovercraft import *
 from models.single_integrator import *
 from models.unicycle_first_order import *
+import sys
 def write_results(file_name, paths, problem_path = None):
 
     data = dict()
@@ -74,7 +75,10 @@ def write_agent(agent):
     elif isinstance(agent,  RobotSingleIntegrator2D):
         agent_dict["type"] = "single_integrator_0"
     elif isinstance(agent,  RobotUnicycleFirstOrder):
-        agent_dict["type"] = "unicycle_first_order_0"
+        agent_dict["type"] = "unicycle_first_order_0_sphere"
+    else:
+        sys.exit('Unknown robot type!')
+
 
     return agent_dict
 
@@ -91,9 +95,10 @@ def read_agent(agent):
         return Hovercraft(size, velocity, k)
     elif type == "single_integrator_0":
         return  RobotSingleIntegrator2D(size, velocity, k)
-    elif type == "unicycle_first_order_0":
+    elif type == "unicycle_first_order_0_sphere":
         return  RobotUnicycleFirstOrder(size, velocity, k)
-
+    else:
+        sys.exit('Unknown robot type!')
 
 def write_polytope(poly):
     A, b = poly

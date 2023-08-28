@@ -8,7 +8,7 @@ from viz.animate import *
 from viz.util import *
 from pathlib import Path
 import argparse
-from conversion import convert
+from conversion import *
 
 def get_config_file(file, min_seg, max_seg, obs_seg):
     with open(file, 'w') as f:
@@ -25,10 +25,15 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     env_path.mkdir(parents=True, exist_ok=True)
     env_file =  env_path / "problem.yaml"
     config_file = env_path / "config.yaml" 
+    # read configurations
+    data_cfg = yaml.load(cfg, Loader=SafeLoader)
+    min_seg = data_cfg["min_seg"]
+    max_seg = data_cfg["max_seg"]
+    obs_seg = data_cfg["obs_seg"]
     if config_file.is_file() == False:
-        get_config_file(config_file, 2, 10, 10) # min_segs, max_segs, obs_segs
+        get_config_file(config_file, min_seg, max_seg, obs_seg) # min_segs, max_segs, obs_segs
     # convert to s2sm format
-    convert(env,problem_path, cfg) # change due to refactor
+    format_to_s2m2(env,problem_path,cfg) 
     name, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
     min_segs, max_segs, obs_steps = read_configuration(config_file)
     start = default_timer()
@@ -39,24 +44,28 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     print("Total Makespan = ", makespan)
 
     trajs = ref2traj(refs)
-    # output to yaml file
+    # animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, name)
+
+    true_trajs, true_actions = extract_results(env,agents,Thetas,trajs)
     result, stats = {}, {}
     result["result"]=[]
     for idx in range(len(refs)):
         per_robot={}
         per_robot["states"]=[]
-        segs = trajs[idx]
-        for seg in segs:
-            _, qref, _ = seg
-            for i in range(len(qref)):
-                # pos = np.array([qref[i][0], qref[i][1]])
-                pos = np.array(qref[i])
-                per_robot["states"].append(pos.tolist())
+        per_robot["actions"]=[]
+        states = true_trajs[idx]
+        actions = true_actions[idx]
+        for state in states:
+            true_q = np.array(state)
+            per_robot["states"].append(true_q.tolist())
+        for action in actions:
+            true_u = np.array(action)
+            per_robot["actions"].append(true_u.tolist())
         result["result"].append(per_robot)
 
     with open(Path(result_folder) / 'result_s2sm.yaml', 'w') as outfile:
         yaml.dump(result, outfile)   
-    
+        
     stats["stats"]=[]
     stats["stats"]
     solution = {}
@@ -66,6 +75,7 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
 
     with open(Path(result_folder) / 'stats.yaml', 'w') as outfile:
         yaml.dump(stats, outfile) 
+
     
     return refs
 def main():

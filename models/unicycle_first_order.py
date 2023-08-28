@@ -45,9 +45,7 @@ class RobotUnicycleFirstOrder(Agent):
 		u0 = [0, 0]
 		for i in range(0,len(t)):
 			t_step = [t[i-1], t[i]]
-
 			q1 = odeint(self.model, q0, t_step, args = (u0,)) 
-															 
 			q0 = q1[1]
 			q.append(q0)
 			u0 = self.controller(q0, qref[i], uref[i])
