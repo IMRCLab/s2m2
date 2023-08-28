@@ -30,12 +30,10 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     min_seg = data_cfg["min_seg"]
     max_seg = data_cfg["max_seg"]
     obs_seg = data_cfg["obs_seg"]
-    goal_epsilon = data_cfg["goal_epsilon"]
-
     if config_file.is_file() == False:
         get_config_file(config_file, min_seg, max_seg, obs_seg) # min_segs, max_segs, obs_segs
     # convert to s2sm format
-    format_to_s2m2(env,problem_path, goal_epsilon) 
+    format_to_s2m2(env,problem_path,cfg) 
     name, limits, Obstacles, agents, Thetas, Goals = read_problem(env_file)
     min_segs, max_segs, obs_steps = read_configuration(config_file)
     start = default_timer()

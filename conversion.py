@@ -12,8 +12,7 @@ def get_polytope(point, epsilon):
 				       [0,1,point[1]+epsilon[1]]])
     return A_rect.tolist()
 
-def format_to_s2m2(env,env_folder,epsilon):
-    radius = 0.4
+def format_to_s2m2(env,env_folder,cfg_file):
     env_name = Path(env).stem
     with open(env) as f:
         data = yaml.load(f, Loader=SafeLoader)
@@ -33,7 +32,10 @@ def format_to_s2m2(env,env_folder,epsilon):
     y_min = limits_min[1]
     new_format["limits"].append([x_min,x_max])
     new_format["limits"].append([y_min,y_max])
-
+    # read algorithms.yaml
+    data_cfg = yaml.load(cfg_file, Loader=SafeLoader)
+    radius = data_cfg["radius"]
+    epsilon = data_cfg["goal_epsilon"]
     for i in range(len(robots)):
         per_robot = {}
         per_robot["k"] = [0.5]*len(robots[i]["start"]) # 2D for single integrator
@@ -41,7 +43,8 @@ def format_to_s2m2(env,env_folder,epsilon):
         per_robot["type"] = robots[i]["type"]
         if per_robot["type"] == "unicycle_first_order_0_sphere":
             per_robot["size"] = radius
-            per_robot["k"] = [2.0, 2.0, 4.0]
+            per_robot["k"] = data_cfg["k"] #[2.0, 2.0, 4.0]
+            per_robot["velocity"] = data_cfg["velocity"]
         elif per_robot["type"] == "car_first_order_0":
             per_robot["size"] = 0.5 
         elif per_robot["type"] == "single_integrator_0":
