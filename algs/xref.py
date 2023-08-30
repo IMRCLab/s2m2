@@ -170,8 +170,8 @@ def add_time_constraints(problem, vars, agent_num, velocities, N, dim, min_dur):
             problem.addConstr(t2 - t1 >= min_dur)
             if dim == 2:
                 for basis in ball_bases(N = 3, dim = dim):
-                    problem.addConstr(v * t2 - v * t1 >= LinExpr(basis, p1) - LinExpr(basis, p2))
-                    problem.addConstr(v * t2 - v * t1 >= LinExpr(basis, p2) - LinExpr(basis, p1))
+                    problem.addConstr(t2 - t1 >= LinExpr(basis, p1) - LinExpr(basis, p2))
+                    problem.addConstr(t2 - t1 >= LinExpr(basis, p2) - LinExpr(basis, p1))
   
             elif dim == 3:
                 problem.addConstr(v * t2 - v * t1 >= p1[0]-p2[0]+p1[1]-p2[1]+p1[2]-p2[2])
@@ -190,6 +190,7 @@ def get_gb_xref(models, Thetas, Goals, limits, O, MO, N_min, N, min_dur = 0):
     # print("Start Searching for Reference Trajectories")
     agent_num = len(models)
     velocities = [model.velocity for model in models]
+    print("velocities", velocities)
     sizes = [model.size for model in models]
     bloat_funcs = [model.bloating for model in models]
     dim = len(Goals[0][0][0])

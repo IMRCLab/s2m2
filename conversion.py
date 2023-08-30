@@ -68,35 +68,6 @@ def format_to_s2m2(env,env_folder,cfg_file):
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
 
-def extract_output(models, ma_starts, ma_segs):
-    # get robot types
-    agent_num = len(models)
-    paths, actions = [], []
-    for idx in range(agent_num):
-        segs = ma_segs[idx]
-        start_state = ma_starts[idx]
-        q0 = start_state + [0] # read from .yaml
-        q = [q0] 
-        u = [] 
-        for seg in segs:
-            u0 = [0, 0]
-            t, qref, uref = seg 
-            for i in range(0, len(t)):
-                t_step = [t[i-1], t[i]]
-                qref_i, uref_i = qref[i], uref[i]
-                run = models[idx].run_model_on_result
-                q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
-                if i >= 1: # avoid dup;icate of the start state
-                    q.append(q0) # sequence of states
-                    u.append(u0)
-                i += 1
-        
-        paths.append(q)
-        actions.append(u)   
-    # compare last point and final
-    print(sqrt((q[-1][0]-qref[-1][0])**2 + (q[-1][1]-qref[-1][1])**2))    
-    return paths, actions
-
 def extract_results(env_file, models, ma_starts, ma_segs):
     # get robot types
     agent_types=[]
@@ -119,13 +90,29 @@ def extract_results(env_file, models, ma_starts, ma_segs):
         q = q0
         if(agent_types[idx] == "unicycle_first_order_0_sphere"):
             for seg in segs:
-                t, qref, uref = seg 
-                for i in range(0, len(t)):
+                t, qref, uref = seg
+                qref = np.array(qref)
+                uref = np.array(uref)
+
+                sampled_t = np.arange(0, t[-1], 0.1)
+                qref_sampled = np.vstack([
+                    np.interp(sampled_t, t, qref[:,0]),
+                    np.interp(sampled_t, t, qref[:,1]),
+                    np.interp(sampled_t, t, qref[:,2])
+                ]).T
+                uref_sampled = np.vstack([
+                    np.interp(sampled_t, t, uref[:,0]),
+                    np.interp(sampled_t, t, uref[:,1])
+                ]).T
+                print(qref_sampled)
+                
+                # print(t)
+                for qref_i, uref_i in zip(qref_sampled, uref_sampled):
                     # t_step = [0.0, 0.1] #[t[i-1], t[i]]
-                    qref_i, uref_i = qref[i], uref[i]
+                    # qref_i, uref_i = qref[i], uref[i]
                     # run = models[idx].run_model_on_result
                     # q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
-
+                    print(qref_i, uref_i)
                     u = models[idx].controller(q, qref_i, uref_i)
                     # action saturation
                     u = np.clip(u, [-0.5, -0.5], [0.5, 0.5])
@@ -134,6 +121,7 @@ def extract_results(env_file, models, ma_starts, ma_segs):
                     # store result
                     qs.append(q) # sequence of states
                     us.append(u)
+                    print(qref_i, q)
 
         paths.append(qs)
         actions.append(us)
