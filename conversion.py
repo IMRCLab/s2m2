@@ -68,7 +68,7 @@ def format_to_s2m2(env,env_folder,cfg_file):
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
 
-def extract_results(env_file, models, ma_starts, ma_segs):
+def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
     # get robot types
     agent_types=[]
     agent_start_angles=[]
@@ -85,8 +85,10 @@ def extract_results(env_file, models, ma_starts, ma_segs):
         segs = ma_segs[idx]
         start_state = ma_starts[idx]
         q0 = start_state + [agent_start_angles[idx]] 
-        qs = [q0] 
-        us = [] 
+        qs = [q0]
+        qrs = [segs[0][1][0]]
+        ts = [0]
+        us = []
         q = q0
         if(agent_types[idx] == "unicycle_first_order_0_sphere"):
             for seg in segs:
@@ -94,7 +96,7 @@ def extract_results(env_file, models, ma_starts, ma_segs):
                 qref = np.array(qref)
                 uref = np.array(uref)
 
-                sampled_t = np.arange(0, t[-1], 0.1)
+                sampled_t = np.arange(t[0], t[-1], 0.1)
                 qref_sampled = np.vstack([
                     np.interp(sampled_t, t, qref[:,0]),
                     np.interp(sampled_t, t, qref[:,1]),
@@ -107,7 +109,7 @@ def extract_results(env_file, models, ma_starts, ma_segs):
                 print(qref_sampled)
                 
                 # print(t)
-                for qref_i, uref_i in zip(qref_sampled, uref_sampled):
+                for t, qref_i, uref_i in zip(sampled_t, qref_sampled, uref_sampled):
                     # t_step = [0.0, 0.1] #[t[i-1], t[i]]
                     # qref_i, uref_i = qref[i], uref[i]
                     # run = models[idx].run_model_on_result
@@ -120,8 +122,26 @@ def extract_results(env_file, models, ma_starts, ma_segs):
                     q = np.asarray(q) + np.asarray(models[idx].model(q, 0, u)) * 0.1
                     # store result
                     qs.append(q) # sequence of states
+                    qrs.append(qref_i)
+                    ts.append(t)
                     us.append(u)
                     print(qref_i, q)
+
+            import matplotlib.pyplot as plt
+
+            # Data for plotting
+
+            fig, ax = plt.subplots(4,1)
+            for i in range(3):
+                ax[i].plot(ts, np.asarray(qrs)[:,i])
+                ax[i].plot(ts, np.asarray(qs)[:,i])
+
+            ax[3].plot(ts[1:], np.asarray(us)[:,0])
+            ax[3].plot(ts[1:], np.asarray(us)[:,1])
+
+            print(result_folder)
+            fig.savefig(Path(result_folder) / "ctrl{}.png".format(idx))
+            # plt.show()
 
         paths.append(qs)
         actions.append(us)

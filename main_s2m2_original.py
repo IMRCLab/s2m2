@@ -46,7 +46,7 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     trajs = ref2traj(refs)
     animate_results(agents, limits, Obstacles, Thetas, Goals, trajs, result_folder)
 
-    true_trajs, true_actions = extract_results(env,agents,Thetas,trajs)
+    true_trajs, true_actions = extract_results(env,agents,Thetas,trajs, result_folder)
     result, stats = {}, {}
     result["result"]=[]
     for idx in range(len(refs)):
