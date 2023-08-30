@@ -89,6 +89,7 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
         qrs = [segs[0][1][0]]
         ts = [0]
         us = []
+        urs = []
         q = q0
         if(agent_types[idx] == "unicycle_first_order_0_sphere"):
             for seg in segs:
@@ -123,6 +124,7 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
                     # store result
                     qs.append(q) # sequence of states
                     qrs.append(qref_i)
+                    urs.append(uref_i)
                     ts.append(t)
                     us.append(u)
                     print(qref_i, q)
@@ -133,11 +135,14 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
 
             fig, ax = plt.subplots(4,1)
             for i in range(3):
-                ax[i].plot(ts, np.asarray(qrs)[:,i])
-                ax[i].plot(ts, np.asarray(qs)[:,i])
+                ax[i].plot(ts, np.asarray(qrs)[:,i], color='b', linestyle='dashed')
+                ax[i].plot(ts, np.asarray(qs)[:,i], color='b')
 
-            ax[3].plot(ts[1:], np.asarray(us)[:,0])
-            ax[3].plot(ts[1:], np.asarray(us)[:,1])
+            ax[3].plot(ts[1:], np.asarray(urs)[:,0], color='b', linestyle='dashed')
+            ax[3].plot(ts[1:], np.asarray(us)[:,0], color='b')
+            ax[3].plot(ts[1:], np.asarray(urs)[:,1], color='g', linestyle='dashed')
+            ax[3].plot(ts[1:], np.asarray(us)[:,1], color='g')
+
 
             print(result_folder)
             fig.savefig(Path(result_folder) / "ctrl{}.png".format(idx))
