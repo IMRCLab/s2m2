@@ -13,7 +13,7 @@ def animate_results(models,  limits, obstacles, Thetas, goals, ma_segs, result_f
     for A, b in goals:
         poly = Polygon(ppm.duality.compute_polytope_vertices(A, b))
         center_xy = list(poly.centroid.coords)
-        goal = plt.Circle((center_xy[0][0],center_xy[0][1]), 0.4, color='r', facecolor='none', alpha = 0.5)
+        goal = plt.Circle((center_xy[0][0],center_xy[0][1]), 0.4, facecolor='none', edgecolor = 'red', alpha = 0.7)
         axes.add_patch(goal)
     interval = 20
     total_frames = 500
@@ -66,7 +66,6 @@ def animate_results(models,  limits, obstacles, Thetas, goals, ma_segs, result_f
                                       blit=True, interval = interval)
 
         fig.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.99, wspace=None, hspace=None)
-        name = "result_s2m2_original.mp4"
+        name = "s2m2_original.mp4"
         path = Path(result_folder) / name 
         ani.save(path, writer='ffmpeg')
-        # plt.show()

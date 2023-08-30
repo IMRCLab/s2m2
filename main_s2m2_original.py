@@ -76,7 +76,25 @@ def main_s2sm_original(env, result_folder, timelimit, cfg):
     with open(Path(result_folder) / 'stats.yaml', 'w') as outfile:
         yaml.dump(stats, outfile) 
 
-    
+    # for the reference path
+    ref_result = {}
+    ref_result["result"]=[]
+    for idx in range(len(refs)):
+        per_robot={}
+        per_robot["states"],per_robot["actions"]=[],[]
+        segs = trajs[idx]
+        for seg in segs:
+            _, qref, uref = seg
+            for i in range(len(qref)):
+                pos = np.array(qref[i])
+                u = np.array(uref[i])
+                per_robot["states"].append(pos.tolist())
+                per_robot["actions"].append(u.tolist())
+        ref_result["result"].append(per_robot)
+
+    with open(Path(result_folder) / 'reference_result_s2sm.yaml', 'w') as ref_outfile:
+        yaml.dump(ref_result, ref_outfile)  
+
     return refs
 def main():
     parser = argparse.ArgumentParser()

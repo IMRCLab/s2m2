@@ -38,13 +38,13 @@ def format_to_s2m2(env,env_folder,cfg_file):
     epsilon = data_cfg["goal_epsilon"]
     for i in range(len(robots)):
         per_robot = {}
-        per_robot["k"] = [0.5]*len(robots[i]["start"]) # 2D for single integrator
+        per_robot["k"] = [0.5]*len(robots[i]["start"]) 
         
         per_robot["type"] = robots[i]["type"]
         per_robot["velocity"] = 0.5 
         if per_robot["type"] == "unicycle_first_order_0_sphere":
             per_robot["size"] = radius
-            per_robot["k"] = data_cfg["k"] #[2.0, 2.0, 4.0]
+            per_robot["k"] = data_cfg["k"] 
             per_robot["velocity"] = data_cfg["velocity"]
         elif per_robot["type"] == "car_first_order_0":
             per_robot["size"] = 0.5 
