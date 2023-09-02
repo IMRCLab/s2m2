@@ -15,18 +15,23 @@ def plot_env(map_limits, Obstacles):
         # Configure
         xmin, xmax = map_limits[0]
         ymin, ymax = map_limits[1]
-        plt.xlim(xmin-2, xmax+2)
-        plt.ylim(ymin-2, ymax+2)
+        plt.xlim(xmin-1, xmax+1)
+        plt.ylim(ymin-1, ymax+1)
         # # viz obstacles
         for A, b in Obstacles:
-            poly = Polygon(ppm.duality.compute_polytope_vertices(A, b))
-            x, y = poly.exterior.xy
+            # poly = Polygon(ppm.duality.compute_polytope_vertices(A, b))
+            # x, y = poly.exterior.xy
+            x_min = -b[0]
+            x_max = b[1]
+            y_min = -b[2]
+            y_max = b[3]
+            x = [x_min,x_min,x_max,x_max]
+            y = [y_min,y_max,y_max,y_min]
             plt.fill(x, y, facecolor='r', alpha=0.3)
         ax = fig.gca()
         plt.gca().set_aspect('equal', adjustable='box')
-        plt.axis('off')
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
+        ax.get_xaxis().set_visible(True)
+        ax.get_yaxis().set_visible(True)
         plt.margins(0, 0)
 
     elif len(map_limits) == 3:
