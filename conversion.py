@@ -5,11 +5,11 @@ import numpy as np
 from pathlib import Path
 from math import *
 
-def get_polytope(point, epsilon):
-    A_rect = np.array([[-1,0,-(point[0]-epsilon[0])],
-				       [1,0,point[0]+epsilon[0]],
-				       [0,-1,-(point[1]-epsilon[1])],
-				       [0,1,point[1]+epsilon[1]]])
+def get_polytope(point, b):
+    A_rect = np.array([[-1,0,-(point[0]-b[0])],
+				       [1,0,point[0]+b[0]],
+				       [0,-1,-(point[1]-b[1])],
+				       [0,1,point[1]+b[1]]])
     return A_rect.tolist()
 
 def format_to_s2m2(env,env_folder,cfg_file):
@@ -59,11 +59,13 @@ def format_to_s2m2(env,env_folder,cfg_file):
         new_format["starts"].append(robots[i]["start"][:2]) # position just, no orientation
     for j in range(len(obstacles)):
         new_format["obstacles"].append(get_polytope(obstacles[j]["center"], np.array(obstacles[j]["size"]) / 2))
+   
     # add four obstacle to have the workspace limit
-    new_format["obstacles"].append(get_polytope([x_min-radius,(y_max-y_min)/2], [0.2,y_max-y_min]))
-    new_format["obstacles"].append(get_polytope([x_max+radius,(y_max-y_min)/2], [0.2,y_max-y_min]))
-    new_format["obstacles"].append(get_polytope([(x_max-x_min)/2,y_min-radius], [x_max-x_min,0.2]))
-    new_format["obstacles"].append(get_polytope([(x_max-x_min)/2,y_max+radius], [x_max-x_min,0.2]))
+    
+    new_format["obstacles"].append(get_polytope([x_min-radius-0.1,(y_max-y_min)/2], [0.2,(y_max-y_min)/2]))
+    new_format["obstacles"].append(get_polytope([x_max+radius+0.1,(y_max-y_min)/2], [0.2,(y_max-y_min)/2]))
+    new_format["obstacles"].append(get_polytope([(x_max-x_min)/2,y_min-radius-0.1], [(x_max-x_min)/2,0.2]))
+    new_format["obstacles"].append(get_polytope([(x_max-x_min)/2,y_max+radius+0.1], [(x_max-x_min)/2,0.2]))
     
     with open(Path(env_folder) / env_name / 'problem.yaml', 'w') as outfile:
         yaml.dump(new_format, outfile)   
