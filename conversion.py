@@ -120,7 +120,7 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
                     print(qref_i, uref_i)
                     u = models[idx].controller(q, qref_i, uref_i)
                     # action saturation
-                    u = np.clip(u, [-0.5, -0.5], [0.5, 0.5])
+                    u = np.clip(u, [-0.5, -2.0], [0.5, 2.0])
                     # propagate using simple Euler integration
                     q = np.asarray(q) + np.asarray(models[idx].model(q, 0, u)) * 0.1
                     # store result
