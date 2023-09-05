@@ -26,19 +26,19 @@ def animate_results(models,  limits, obstacles, Thetas, goals, ma_segs, result_f
         err_patches = []
         for idx in range(agent_num):
             ref_x, ref_y, _, tru_x, tru_y, _, times = paths[idx]
-            # ref_patch = plt.Circle((ref_x[0], ref_y[0]), 0, fc='k')
+            ref_patch = plt.Circle((ref_x[0], ref_y[0]), 0, fc='k')
             tru_patch = plt.Circle((tru_x[0], tru_y[0]), models[idx].size, fc='blue', alpha = 0.5)
-            # err_patch = plt.Circle((ref_x[0], ref_y[0]), models[idx].size, fc='red', alpha = 0.4)
-            # ref_patches.append(ref_patch)
+            err_patch = plt.Circle((ref_x[0], ref_y[0]), models[idx].size, fc='red', alpha = 0.4)
+            ref_patches.append(ref_patch)
             tru_patches.append(tru_patch)
-            # err_patches.append(err_patch)
+            err_patches.append(err_patch)
         # init
         def init():
             for idx in range(agent_num):
                 ref_x, ref_y, _, tru_x, tru_y, _, times = paths[idx]
-                # ref_patches[idx].center = (ref_x[0], ref_y[0])
+                ref_patches[idx].center = (ref_x[0], ref_y[0])
                 tru_patches[idx].center = (tru_x[0], tru_y[0])
-                # err_patches[idx].center = (ref_x[0], ref_y[0])
+                err_patches[idx].center = (ref_x[0], ref_y[0])
 
             for patch in ref_patches + tru_patches + err_patches: axes.add_patch(patch)
             return ref_patches + tru_patches + err_patches
@@ -52,13 +52,13 @@ def animate_results(models,  limits, obstacles, Thetas, goals, ma_segs, result_f
                 step = 0
                 while (step < len(times) - 1) and (times[step] < tpf * f):
                     step = step + 1
-                # ref_patches[idx].center = (ref_x[step], ref_y[step])
+                ref_patches[idx].center = (ref_x[step], ref_y[step])
                 tru_patches[idx].center = (tru_x[step], tru_y[step])
-                # err_patches[idx].center = (ref_x[step], ref_y[step])
+                err_patches[idx].center = (ref_x[step], ref_y[step])
                 if step == len(ref_x) - 1: error = models[idx].size
                 else: error  = (models[idx].size + models[idx].bloating(step))
-                # err_patches[idx].width = 2 * error
-                # err_patches[idx].height = 2 * error
+                err_patches[idx].width = 2 * error
+                err_patches[idx].height = 2 * error
             return ref_patches + tru_patches + err_patches
 
 
