@@ -74,12 +74,14 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
     # get robot types
     agent_types=[]
     agent_start_angles=[]
+    agent_goal_angles=[]
     with open(env_file, "r") as file:
         data = yaml.load(file, Loader=yaml.Loader)
         robots = data['robots'] 
     for i in range(len(robots)):
         agent_types.append(robots[i]["type"])  
         agent_start_angles.append(robots[i]["start"][-1])  # unicycle
+        agent_goal_angles.append(robots[i]["goal"][-1])  # unicycle
 
     agent_num = len(models)
     paths, actions = [], []
@@ -109,7 +111,7 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
                     np.interp(sampled_t, t, uref[:,0]),
                     np.interp(sampled_t, t, uref[:,1])
                 ]).T
-                print(qref_sampled)
+                # print(qref_sampled)
                 
                 # print(t)
                 for t, qref_i, uref_i in zip(sampled_t, qref_sampled, uref_sampled):
@@ -117,7 +119,7 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
                     # qref_i, uref_i = qref[i], uref[i]
                     # run = models[idx].run_model_on_result
                     # q0, u0 = run(q0, u0, t_step, qref_i, uref_i) # propagated
-                    print(qref_i, uref_i)
+                    # print(qref_i, uref_i)
                     u = models[idx].controller(q, qref_i, uref_i)
                     # action saturation
                     u = np.clip(u, [-0.5, -2.0], [0.5, 2.0])
@@ -129,7 +131,27 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
                     urs.append(uref_i)
                     ts.append(t)
                     us.append(u)
-                    print(qref_i, q)
+                    # print(qref_i, q)
+
+            # print(np.linalg.norm(qref_i - q))
+            qref_i[2] = agent_goal_angles[idx]
+            while True:
+                # print(t, np.linalg.norm(qs[-2] - qs[-1]))
+                t += 0.1
+                u = models[idx].controller(q, qref_i, uref_i)
+                print(t, idx, u)
+                if np.linalg.norm(u) < 0.1:
+                    break
+                # action saturation
+                u = np.clip(u, [-0.5, -2.0], [0.5, 2.0])
+                # propagate using simple Euler integration
+                q = np.asarray(q) + np.asarray(models[idx].model(q, 0, u)) * 0.1
+                # store result
+                qs.append(q) # sequence of states
+                qrs.append(qref_i)
+                urs.append(uref_i)
+                ts.append(t)
+                us.append(u)
 
             import matplotlib.pyplot as plt
 
