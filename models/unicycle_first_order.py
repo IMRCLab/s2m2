@@ -33,7 +33,7 @@ class RobotUnicycleFirstOrder(Agent):
 		return [v, w]
 
 	def bloating(self, n):
-		return 0
+		return 0.1
 		k1, k2, k3 = self.k
 		if n != 0:
 			return sqrt(4 * n / k2)
