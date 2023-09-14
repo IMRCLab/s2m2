@@ -87,6 +87,7 @@ def read_agent(agent):
     k = agent["k"]
     velocity = agent["velocity"]
     size = agent["size"]
+    bloating = agent["bloating"]
     if agent["type"] == "car":
         return Car(size, velocity, k)
     elif type == "auv":
@@ -96,7 +97,7 @@ def read_agent(agent):
     elif type == "single_integrator_0":
         return  RobotSingleIntegrator2D(size, velocity, k)
     elif type == "unicycle_first_order_0_sphere":
-        return  RobotUnicycleFirstOrder(size, velocity, k)
+        return  RobotUnicycleFirstOrder(size, velocity, k, bloating)
     else:
         sys.exit('Unknown robot type!')
 

@@ -4,10 +4,11 @@ from models.agent import *
 
 class RobotUnicycleFirstOrder(Agent):
 
-	def __init__(self, size, velocity, k):
+	def __init__(self, size, velocity, k, bloating=0):
 		self.size = size
 		self.velocity = velocity
 		self.k = k
+		self.bloating_cfg = bloating
 
 	def model(self, q, t, u):
 		x, y, theta = q
@@ -33,12 +34,14 @@ class RobotUnicycleFirstOrder(Agent):
 		return [v, w]
 
 	def bloating(self, n):
-		return 0.1
-		k1, k2, k3 = self.k
-		if n != 0:
-			return sqrt(4 * n / k2)
+		if self.bloating_cfg == "auto":
+			k1, k2, k3 = self.k
+			if n != 0:
+				return sqrt(4 * n / k2)
+			else:
+				return sqrt(4 / k2)
 		else:
-			return sqrt(4 / k2)
+			return float(self.bloating_cfg)
 
 	def run_model(self, q0, t, qref, uref):
 		q = [q0]

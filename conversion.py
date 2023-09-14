@@ -46,6 +46,7 @@ def format_to_s2m2(env,env_folder,cfg_file):
             per_robot["size"] = radius
             per_robot["k"] = data_cfg["k"] 
             per_robot["velocity"] = data_cfg["velocity"]
+            per_robot["bloating"] = data_cfg["bloating"]
         elif per_robot["type"] == "car_first_order_0":
             per_robot["size"] = 0.5 
         elif per_robot["type"] == "single_integrator_0":
