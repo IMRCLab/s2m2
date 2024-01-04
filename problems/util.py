@@ -73,9 +73,9 @@ def write_agent(agent):
     elif isinstance(agent, Hovercraft):
         agent_dict["type"] = "hovercraf"
     elif isinstance(agent,  RobotSingleIntegrator2D):
-        agent_dict["type"] = "single_integrator_0"
+        agent_dict["type"] = "integrator1_2d_v0"
     elif isinstance(agent,  RobotUnicycleFirstOrder):
-        agent_dict["type"] = "unicycle_first_order_0_sphere"
+        agent_dict["type"] = "unicycle1_sphere_v0"
     else:
         sys.exit('Unknown robot type!')
 
@@ -94,9 +94,9 @@ def read_agent(agent):
         return AUV(size, velocity, k)
     elif type == "hovercraft":
         return Hovercraft(size, velocity, k)
-    elif type == "single_integrator_0":
+    elif type == "integrator1_2d_v0":
         return  RobotSingleIntegrator2D(size, velocity, k)
-    elif type == "unicycle_first_order_0_sphere":
+    elif type == "unicycle1_sphere_v0":
         return  RobotUnicycleFirstOrder(size, velocity, k, bloating)
     else:
         sys.exit('Unknown robot type!')

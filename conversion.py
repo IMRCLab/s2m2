@@ -42,14 +42,14 @@ def format_to_s2m2(env,env_folder,cfg_file):
         
         per_robot["type"] = robots[i]["type"]
         per_robot["velocity"] = 0.5 
-        if per_robot["type"] == "unicycle_first_order_0_sphere":
+        if per_robot["type"] == "unicycle1_sphere_v0":
             per_robot["size"] = radius
             per_robot["k"] = data_cfg["k"] 
             per_robot["velocity"] = data_cfg["velocity"]
             per_robot["bloating"] = data_cfg["bloating"]
-        elif per_robot["type"] == "car_first_order_0":
+        elif per_robot["type"] == "car1_v0":
             per_robot["size"] = 0.5 
-        elif per_robot["type"] == "single_integrator_0":
+        elif per_robot["type"] == "integrator1_2d_v0":
             per_robot["size"] = 0.1
         else:
             print("Unknown robot type, manual termination!")
@@ -96,7 +96,7 @@ def extract_results(env_file, models, ma_starts, ma_segs, result_folder):
         us = []
         urs = []
         q = q0
-        if(agent_types[idx] == "unicycle_first_order_0_sphere"):
+        if(agent_types[idx] == "unicycle1_sphere_v0"):
             for seg in segs:
                 t, qref, uref = seg
                 qref = np.array(qref)
